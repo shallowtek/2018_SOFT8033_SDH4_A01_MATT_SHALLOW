@@ -51,7 +51,7 @@ def my_reduce(input_stream, total_petitions, output_stream):
     overall_list = []
     
     # I read the stream and extract the data from each line using get_key_value function
-    for text_line in input_stream.readlines():
+    for text_line in input_stream:
         #New variables from return of function
         (new_page_views, new_lang) = get_key_value(text_line)
         

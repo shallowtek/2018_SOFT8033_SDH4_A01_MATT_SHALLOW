@@ -58,7 +58,7 @@ def my_map(input_stream, languages, num_top_entries, output_stream):
           
 
     # 2. I loop through input stream and send line to process_line to extract the main variables.
-    for text_line in input_stream.readlines():
+    for text_line in input_stream:
         # 2.1. create a list of words
         words_list = process_line(text_line)
 

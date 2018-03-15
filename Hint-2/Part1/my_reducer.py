@@ -44,7 +44,7 @@ def my_reduce(input_stream, output_stream):
     temp_val = 0
         
     # I read the stream and extract the data from each line using get_key_value function
-    for text_line in input_stream.readlines():
+    for text_line in input_stream:
         #New variables from return of function
         (new_lang, new_page_views) = get_key_value(text_line)
         #Add to temp val the page views

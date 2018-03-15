@@ -60,10 +60,10 @@ def my_reduce(input_stream, num_top_entries, output_stream):
     current_content = ""
     current_page_views = 0
     temp_list = []
-    
+      
     
     # I read the stream and extract the data from each line using get_key_value function
-    for text_line in input_stream.readlines():
+    for text_line in input_stream:
         #New variables from return of function
         (new_page_views, new_content, new_lang) = get_key_value(text_line)
 #        I create a new key value pair just for content and page views. 
