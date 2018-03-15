@@ -55,7 +55,7 @@ def takeSecond(elem):
 def my_reduce(input_stream, num_top_entries, output_stream):
     
 #   I create three variables to store relevant data.
-#   I creat a temp_list to sort the content and pageviews separate to lang
+#   I create a temp_list to sort the content and pageviews separate to lang
     current_lang = ""
     current_content = ""
     current_page_views = 0

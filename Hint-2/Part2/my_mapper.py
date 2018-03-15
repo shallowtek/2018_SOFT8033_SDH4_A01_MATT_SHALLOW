@@ -60,34 +60,29 @@ def my_map(input_stream, per_language_or_project, output_stream):
             # 2.2.1. I get the first word which is the language
             firstWord = words_list[0]
 
-            # 2.2.2. I get the the first two chars of the first word to check against the languages list
-            #charOne = firstWord[0]
-            #charTwo = firstWord[1]
+            #Split the firstword to separate project from language
             if "." in firstWord:
                 lang, project = firstWord.split(".", 1)
             else:
                 lang = firstWord
             
-        
+			#Get page views-second last element
             page_views = words_list[-2]
             
+			#Check if lang or project is being tested and send to output stream
             if per_language_or_project == True:
                 res = lang + '\t' + page_views + '\n'
                 output_stream.write(res)
                 break;
                 
             else:
+			
+				#Need to check if there is in fact a project or not then print to output
                 if project != " ":
                     res = project + '\t' + page_views + '\n'
                     output_stream.write(res)
                     break; 
-                    
-                    
-                
-                
-           
-            #lang_list.append(firstWord)
-            #page_views_list.append(page_views)
+                 
                 
 
 # ------------------------------------------

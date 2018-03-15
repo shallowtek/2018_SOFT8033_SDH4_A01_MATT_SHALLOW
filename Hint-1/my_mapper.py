@@ -26,7 +26,7 @@ def process_line(line):
     line = line.rstrip()
     line = line.rstrip('\t')
 
-    # 3. We strip any white character at the begining
+    # 3. We strip any white character at the beginning
     line = line.strip()
     line = line.strip('\t')
 
@@ -55,8 +55,7 @@ def my_map(input_stream, languages, num_top_entries, output_stream):
     content_list = []
     page_views_list = []
     lang_list = []
-    
-        
+          
 
     # 2. I loop through input stream and send line to process_line to extract the main variables.
     for text_line in input_stream.readlines():

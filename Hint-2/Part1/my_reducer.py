@@ -17,7 +17,6 @@ import codecs
 
 #print to output stream
 def print_key_value(lang, value, output_stream):
-
            
     res = lang + "\t" + str(value) + "\n"
     output_stream.write(res)
@@ -33,30 +32,24 @@ def get_key_value(line):
     lang = words[0]
     value = words[1]
 
-
     return lang, value
 
 # ------------------------------------------
 # FUNCTION my_reduce
 # ------------------------------------------
 def my_reduce(input_stream, output_stream):
-        
-#   I create three variables to store relevant data.
-#   I creat a temp_list to sort the content and pageviews separate to lang
-    
-    
+       
+	   
+    # temp val used to store page views total
     temp_val = 0
-    
-    
+        
     # I read the stream and extract the data from each line using get_key_value function
     for text_line in input_stream.readlines():
         #New variables from return of function
         (new_lang, new_page_views) = get_key_value(text_line)
-        
+        #Add to temp val the page views
         temp_val = temp_val + int(new_page_views)
-        
-       
-           
+    #send to output stream            
     print_key_value("Total", temp_val, output_stream)
 # ------------------------------------------
 # FUNCTION my_main

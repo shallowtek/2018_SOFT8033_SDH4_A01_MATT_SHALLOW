@@ -15,13 +15,13 @@
 import sys
 import codecs
 from operator import itemgetter, attrgetter
-
+#Print to output stream
 def print_key_value(lang, value, percentage, output_stream):
-
            
     res = lang + "\t" + str(value) + "\t" + str(percentage) + "\n"
     output_stream.write(res)
 
+	
 def get_key_value(line):
     # 1. Get rid of the end of line at the end of the string
     line = line.replace('\n', '')
@@ -33,7 +33,6 @@ def get_key_value(line):
     lang = words[0]
     value = words[1]
 
-
     return value, lang
 
  
@@ -43,8 +42,8 @@ def get_key_value(line):
 def my_reduce(input_stream, total_petitions, output_stream):
     
         
-#   I create three variables to store relevant data.
-#   I creat a temp_list to sort the content and pageviews separate to lang
+#   I create a number of variables similar to other reducers with addition to an overall list that
+#	stores a the total temp views, language and percentage(answer)
     current_lang = ""
     current_page_views = 0
     percentage = 0.0
@@ -56,33 +55,30 @@ def my_reduce(input_stream, total_petitions, output_stream):
         #New variables from return of function
         (new_page_views, new_lang) = get_key_value(text_line)
         
-        
+        #Similar to other reducers I commented on
         if new_lang != current_lang:          
            if current_lang != "":
+		   
+			   #Calculate the percentage, round and then append all to an overall list. (nested list)
                percentage = (temp_total_views / total_petitions) * 100
-               answer = round(percentage, 2)
-                              
-               overall_list.append((temp_total_views, current_lang, answer))
-               # del temp_list[:]
-               #print_key_value(current_lang, temp_total_views , answer, output_stream)
-                          
-#           Set current lang to the new lang              
-           
+               answer = round(percentage, 2)                             
+               overall_list.append((temp_total_views, current_lang, answer))         
+           #need to resent the total views for next language/project
            temp_total_views = 0
            current_lang = new_lang
-#       Set rest of current variables to new variables           
-        
+#       Set rest of current variables to new variables. Also add the total views for that project as you loop.                  
         current_page_views = new_page_views
         temp_total_views = temp_total_views + int(current_page_views)
-#       Set the key value so that the first and last line is caught and append to templist
+	
+	#Need to account for last project or language
     if current_lang != "":
         percentage = (temp_total_views / total_petitions) * 100                     
         overall_list.append((temp_total_views, current_lang, answer))
-        #print_key_value(current_lang, temp_total_views , answer, output_stream)  
-        
+         
+     #sorting the overall list by page views since that will also show highest percentage.
+	#Then print so that language is first since I had page views as first item in list
     overall_list.sort(key=itemgetter(0), reverse = True)
-    for item in overall_list:
-        
+    for item in overall_list:       
         print_key_value(item[1], item[0], item[2], output_stream )
 # ------------------------------------------
 # FUNCTION my_main

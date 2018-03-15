@@ -50,13 +50,6 @@ def process_line(line):
 def my_map(input_stream, output_stream):
     
          
-#    I created three lists to store the main variables of the line. 
-#    Content is the title, lang is the specific language and page views is the number of page views.
-    #page_views_list = []
-    #lang_list = []
-    
-        
-
     # 2. I loop through input stream and send line to process_line to extract the main variables.
     for text_line in input_stream.readlines():
         # 2.1. create a list of words
@@ -66,37 +59,15 @@ def my_map(input_stream, output_stream):
         for i in range(0, len(words_list)):
             # 2.2.1. I get the first word which is the language
             firstWord = words_list[0]
-
-            # 2.2.2. I get the the first two chars of the first word to check against the languages list
-            #charOne = firstWord[0]
-            #charTwo = firstWord[1]
-#            I combine the two chars to get the lang I am looking for
-           #wordLang = charOne + charTwo
+			
 #            I get the page views which is the second last element
             page_views = words_list[-2]
-            
-#            I create a temp list so I can form the main content into one string.
-            #temp_list = words_list
-#           I use the join method to tie all the words together that I want            
-            #content = "".join(temp_list[1:-2])
-            
-            # check if the language is in the languages array, if so add to the lists then break to stop adding more.
-                           
-            #lang_list.append(firstWord)
+
             #page_views_list.append(page_views)
             res = firstWord + '\t' + page_views + '\n'
             output_stream.write(res)
             break;    
     
-    
-#   Here I form the new string from all lists and send to output stream.
-    #pos = 0
-    #lang = lang_list[pos]
-   # page_views = page_views_list[pos]
-    #res = lang + '\t' + page_views + '\n'
-   # output_stream.write(res)
-    #pos = pos + 1
-
 # ------------------------------------------
 # FUNCTION my_main
 # ------------------------------------------
