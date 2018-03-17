@@ -45,16 +45,33 @@ def process_line(line):
 # ------------------------------------------
   
 def filter_languages(line, languages):
-    # 1. We create the output variable
-    
-    
-    lang = line.split(".")
+      # 1. We create the output variable
     res = False
-    print(line)
+
+    # 2. We clean the line
+    line = line.replace('\t', ' ')
+    line = line.replace('  ', ' ')
+    line = line.replace('   ', ' ')
+    line = line.replace('    ', ' ')
+
+    line = line.strip()
+    line = line.rstrip()
+
+    # 3. We split the line by words
+    words = line.split(" ")
+    first_word = words[0]
+    
+    if "." in first_word:
+      lang, project = first_word.split(".", 1)
+    else:
+      lang = first_word
+    
     # 4. We append each words to the list
+  
     if lang in languages:
         res = True
 
+    # 5. We return res
     return res
 # ------------------------------------------
 # FUNCTION my_main
@@ -63,11 +80,12 @@ def my_main(dataset_dir, o_file_dir, languages, num_top_entries):
     inputRDD = sc.textFile(dataset_dir)
     sampleData = inputRDD.sample(False,0.001)
     # 2. We split the dataset by words
-    all_wordsRDD = sampleData.map(lambda x: process_line(x))
-    
+    #all_wordsRDD = sampleData.map(lambda x: process_line(x))
+    filtered_sample = sampleData.filter(lambda x: filter_languages(x, languages))
+    sorted_sample = filtered_sample.sortBy(lambda x: x)
     #filtered_langs = sampleData.filter(lambda x: filter_languages(x, languages))
-    filtered_langs = all_wordsRDD.filter(lambda x: filter_languages(x, languages))    
-    for f in print(lang).take(20):      
+    #filtered_langs = all_wordsRDD.filter(lambda x: filter_languages(x, languages))    
+    for f in sorted_sample.take(20):      
       print(f)
 
 # ---------------------------------------------------------------

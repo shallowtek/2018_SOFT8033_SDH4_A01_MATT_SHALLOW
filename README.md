@@ -8,4 +8,5 @@ Initial upload 12 March - Finished Hint1 and Hint 2 but needs more commenting
 15-mar-18-13:26 - Change the way the file is read as recommended by nacho so that it does not read the whole text file. 
 
 17-mar-18-12:53 - Add Hint 3, experimenting with RDD
+		 -1:23	- Get language filter and sorting working
 
