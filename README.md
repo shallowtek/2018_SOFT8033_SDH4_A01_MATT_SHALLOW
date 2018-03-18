@@ -9,5 +9,6 @@ Initial upload 12 March - Finished Hint1 and Hint 2 but needs more commenting
 
 17-mar-18-12:53 - Add Hint 3, experimenting with RDD
 17-mar-18-13:23 - Get language filter and sorting working
-18-mar-18-10:49 - More experimenting with RDD
 
+18-mar-18-10:49 - More experimenting with RDD
+18-mar-18-13:57 - New way to sort based on two criteria
