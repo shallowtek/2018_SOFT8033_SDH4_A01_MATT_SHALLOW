@@ -21,18 +21,28 @@ def filter_lang(word, languages):
 # ------------------------------------------
 def my_main(dataset_dir, o_file_dir, languages, num_top_entries):
     inputRDD = sc.textFile(dataset_dir)
-    sampleRDD = inputRDD.sample(False,0.01,1234)
-    sampleRDD.persist()
-    filterRDD = sampleRDD.map(lambda x: x.split(" ")).filter(lambda x: filter_lang(x[0], languages))
+    #sampleRDD = inputRDD.sample(False,0.01,1234)
+    inputRDD.persist()
+    filterRDD = inputRDD.map(lambda x: x.split(" ")).filter(lambda x: filter_lang(x[0], languages))
     filterRDD.persist()
-    sortedRDD = filterRDD.sortBy(lambda x: (x[0],x[2]), False).groupBy(lambda x: x[0]).distinct().mapValues()
+    sortedRDD = filterRDD.sortBy(lambda x: (x[0],int(x[2])), False)
     sortedRDD.persist()
+    combineValueRDD = sortedRDD.map(lambda x: (x[0], x[1] + ",  " + x[2])).toDF(['lang', 'content'])
     #filterTopRDD = sortedRDD.groupBy(lambda x: x[0]).distinct()
+    #new = sortedRDD.keyBy(lambda x: x[0]).groupByKey().mapValues()
     
+    foo = udf(lambda x:x[0:5], ArrayType(StringType()))
+    df_list = (combineValueRDD.groupby('lang').agg(collect_list('content')).
+                   withColumn('contents',foo('collect_list(content)')).
+                   withColumn('content', explode('contents')).
+                   drop('contents', 'collect_list(content)'))
+    #df_list.show()
+    rdd_list = df_list.rdd.map(list)
     
-    for f in sortedRDD.take(20):      
-      print(f)
-
+#     for f in rdd_list.take(20):      
+#       print(f)
+      
+    rdd_list.saveAsTextFile(o_file_dir)
 # ------------------------------------------
 # MAIN
 # ------------------------------------------
