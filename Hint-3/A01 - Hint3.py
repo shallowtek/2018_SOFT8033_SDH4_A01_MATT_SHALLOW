@@ -13,6 +13,9 @@
 import sys
 import codecs
 
+from pyspark.sql.functions import collect_list, udf, explode
+from pyspark.sql.types import *
+
 # ------------------------------------------
 # FUNCTION process_line
 # ------------------------------------------
@@ -41,30 +44,7 @@ import codecs
 #     return res
 
 
-# ------------------------------------------
-# Top Five
-# ------------------------------------------
-# def top_five(line):
-#     current_lang = ""
-#     next_lang = line[0]
-    
-#     temp_list = []
-#     overall_list = []    
-  
-#     if next_lang != current_lang:
-      
-#       if current_lang != "":
-#         temp_list.sort(key = lambda x: x[2])
-#         temp_list[:5]
-#         overall_list.extend(temp_list)
-#         temp_list[:]
-          
-#       current_lang = next_lang
-#       temp_list.append(line)
-      
-#     overall_list.extend[line]
-    
-#     return overall_list
+
 
 # ------------------------------------------
 # FUNCTION filter languages
@@ -88,6 +68,7 @@ def filter_languages(line, languages):
     first_word = words[0]
     content = words[1]
     page_views = words[2]
+    combined = first_word + " " + content + " " + page_views 
     
     if "." in first_word:
       lang, project = first_word.split(".", 1)
@@ -97,25 +78,73 @@ def filter_languages(line, languages):
     # 4. We append each words to the list
     
     if lang in languages:
-        res.append((first_word, content, page_views))
-#         res.append(content)
-#         res.append(page_views)
+   
+      res.append([first_word, content, page_views])
+  #         res.append(content)
+  #         res.append(page_views)
         
-
     # 5. We return res
     return res
+  
+  # ------------------------------------------
+# Top Five
+# ------------------------------------------
+# def top_five(lineX, lineY):
+  
+    
+#     overall_list = []
+#     temp_list = []
+#     temp_list.append(" ")
+#     last_lang = temp_list[-1]
+#     next_lang = lineY[0]
+#     content = lineY[1]
+#     views = lineY[2]
+#     combined = next_lang + " " + content + " " + views 
+    
+
+      
+#     if next_lang != last_lang:
+      
+#       if last_lang != " ":
+#         temp_list[:5]
+#         overall_list.append(temp_list)
+#         del temp_list[:]
+        
+    
+#     temp_list.append(combined)
+    
+      
+    
+#     return overall_list
 # ------------------------------------------
 # FUNCTION my_main
 # ------------------------------------------
 def my_main(dataset_dir, o_file_dir, languages, num_top_entries):
     inputRDD = sc.textFile(dataset_dir)
-    sample_data = inputRDD.sample(False,0.001,1234)
-    filter_lang = sample_data.flatMap(lambda x: filter_languages(x, languages)).collect()
+    sample_data = inputRDD.sample(False,0.01,1234)
+    sample_data.persist()
+    filter_lang = sample_data.flatMap(lambda x: filter_languages(x, languages))
     #split_words = sample_data.map(lambda x: x.split(" "))
-    #sorted_lang = filter_lang.sortBy(lambda x: (x[0], x[2]))  
-    sorted_list = sorted(filter_lang, key=lambda x: (x[0], x[2]), reverse=True)
-#   split_words = sorted_lang.map(lambda x: x.split(" "))
+    filter_lang.persist()
+    sorted_lang = filter_lang.sortBy(lambda x: (x[0], x[2]), False)
+    sorted_lang.persist()
+#     filter_top_five = sorted_lang.flatMap(lambda x: top_five(x))
+    df = sorted_lang.toDF(["lang", "content"])
+  
+    foo = udf(lambda x:x[0:5], ArrayType(StringType()))
+    df_list = (df.groupby('lang').agg(collect_list('content')).
+                   withColumn('values',foo('collect_list(content)')).
+                   withColumn('content', explode('values')).
+                   drop('values', 'collect_list(content)'))
+    df_list.show()
     
+#     sorted_lang.persist()
+    #filter_top_five = sorted_lang.flatMap(lambda x: top_five(x))
+#     sorted_list = sorted(filter_lang, key=lambda x: (x[0], x[2]), reverse=True)
+    
+    #L = [list(v) for k,v in groupby(sorted_list)] 
+    #filtered_views = sorted_list.flatMap(lambda x: top_five(x)).collect()
+      
    #filter_views = split_words.flatMap(lambda x: top_five(x))
     #sorted_views = split_words.sortBy(lambda x: x[2], False)
     # 2. We split the dataset by words
@@ -126,8 +155,8 @@ def my_main(dataset_dir, o_file_dir, languages, num_top_entries):
    #sorted_sample_two = words_sample.sortBy(lambda x: x[2], False)
     #filtered_langs = sampleData.filter(lambda x: filter_languages(x, languages))
     #filtered_langs = all_wordsRDD.filter(lambda x: filter_languages(x, languages))    
-    for f in range(0,50):      
-      print(sorted_list[f])
+#     for f in filter_top_five.take(20):      
+#       print(f)
 
 # ---------------------------------------------------------------
 #           PYTHON EXECUTION
