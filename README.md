@@ -18,4 +18,5 @@ Initial upload 12 March - Finished Hint1 and Hint 2 but needs more commenting
 19-mar-18-20:33 - Finished with Dataframe as it was cleaner solution.
 
 22-mar-18-10:07 - Add comments to Hint 3
-22-mar-18-22:13 - Add Hint 4 - almost finished
+22-mar-18-13:13 - Add Hint 4 - almost finished
+22-mar-18-14:53 - Add Hint 4 - finished

@@ -1,11 +1,12 @@
-#Matt Shallow - 19-Mar-18-18:47
+#Matt Shallow - 22-Mar-18-02:16
 import sys
 import codecs
 
-from pyspark.sql.functions import collect_list, udf, explode
-from pyspark.sql.types import *
 
 accum = sc.accumulator(0)
+
+#This function splits the line and checks whether it is a project or lang using boolean.
+#Then returns either project or lang list for that line
 # ------------------------------------------
 # FUNCTION split
 # ------------------------------------------
@@ -14,9 +15,9 @@ def split(line, per_language_or_project):
   
   project = ""
   words = line.split(" ")
+  accum.add(int(words[2]))
+  
   first_word = words[0]
- 
-  accum.add(long(words[2]))
   
   if "." in first_word:      
       lang, project = first_word.split(".", 1)
@@ -32,51 +33,49 @@ def split(line, per_language_or_project):
       
   return res
 
+#This function calculates the percentage. It takes in a line and the total_partitions
+#I cast values to floats and then use round. New mapping is returned.
 # ------------------------------------------
-# FUNCTION percentage
+# FUNCTION get_percentage
 # ------------------------------------------
+def get_percentage(x, total_petitions):
+  res = []   
+  percentage = float((float(x[1])/float(total_petitions)) * 100)
+  #answer = round(percentage, 2) 
+  res.extend((x[0], x[1], str(percentage) + "%"))
+  return res
 # ------------------------------------------
 # FUNCTION my_main
 # ------------------------------------------
 def my_main(dataset_dir, o_file_dir, per_language_or_project):
     inputRDD = sc.textFile(dataset_dir)
     
-    
-    #Used a sample for testing
-    #sampleRDD = inputRDD.sample(False,0.01,1234)
     #I persist the RDD after each step to speed up processing
-    
     inputRDD.persist()
-    #Here I split line into words then filter language using filter_lang function
+    #I create a function split that splits line into words, checks project or language boolean and returns a new mapping.
+    #I then filter any blank projects or langs
     filterRDD = inputRDD.map(lambda x: split(x, per_language_or_project)).filter(lambda x: x != [])
     filterRDD.persist()
-    #I sort the data based on language and page views.
-    sortedRDD = filterRDD.sortBy(lambda x: (x[0],int(x[1])), False)
+    #I reduce the data by key so that the page views are summed together  
+    reduceRDD = filterRDD.reduceByKey(lambda x,y : int(x)+int(y))
+    reduceRDD.persist()
+    #I then sort based on page views
+    sortedRDD = reduceRDD.sortBy(lambda x: int(x[1]), False)
     sortedRDD.persist()
     
-    reduceRDD = sortedRDD.reduceByKey(lambda x,y : int(x)+int(y))
-    reduceRDD.persist()
-    mapFinalRDD = reduceRDD.map(lambda x: percentage())
-#     combineValueRDD = sortedRDD.map(lambda x: (x[0], x[1] + ",  " + x[2])).toDF(['lang', 'content'])
+    #I use the accumulator to find percentage
+    total_petitions = accum.value
+    #The accumulator value is passed into the get_percentage and a new map is created with lang, page views and percentage
+    mapFinalRDD = sortedRDD.map(lambda x: get_percentage(x, total_petitions))
+  
     
-#     #Here I create a function called top five that takes in a list grouped by language and slices top five.
-#     #This new sliced list is then inserted into the column and the old unspliced list is dropped.
-#     top_five = udf(lambda x:x[0:num_top_entries], ArrayType(StringType()))
-#     df_list = (combineValueRDD.groupby('lang').agg(collect_list('content')).
-#                    withColumn('contents',top_five('collect_list(content)')).
-#                    withColumn('content', explode('contents')).
-#                    drop('contents', 'collect_list(content)'))
-#     #df_list.show()
-    
-#     #Convert dataframe back to RDD
-#     rdd_list = df_list.rdd.map(list)
-    print(accum)
+    #print(accum.value)
     #Loop through to check all is correct
-    for f in reduceRDD:      
-      print(f)
+#     for f in mapFinalRDD:      
+#       print(f)
       
     #Save to file
-#     rdd_list.saveAsTextFile(o_file_dir)
+    mapFinalRDD.saveAsTextFile(o_file_dir)
 # ------------------------------------------
 # MAIN
 # ------------------------------------------
