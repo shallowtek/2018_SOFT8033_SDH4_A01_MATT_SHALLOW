@@ -37,10 +37,10 @@ def my_main(dataset_dir, o_file_dir, languages, num_top_entries):
     sortedRDD.persist()
     #I convert the RDD to a dataframe so that the top five for each language can be filtered.
     #But before I do this I need to combine both value and content into one string so there will only need to
-    #be two columns in the dataframe. There are probably many ways to do this and this is just the way I chose to do it.
+    #be two columns in the dataframe. There are probably better ways to do this and this is just the way I chose to do it as I wanted to experiment with dataframes.
     combineValueRDD = sortedRDD.map(lambda x: (x[0], x[1] + ",  " + x[2])).toDF(['lang', 'content'])
     
-    #Here I create a function called top five that takes in a list grouped by language and slices top five.
+    #Here I create a function called top five and takes in a list grouped by language and slices top five.
     #This new sliced list is then inserted into the column and the old unspliced list is dropped.
     top_five = udf(lambda x:x[0:num_top_entries], ArrayType(StringType()))
     df_list = (combineValueRDD.groupby('lang').agg(collect_list('content')).
@@ -53,8 +53,8 @@ def my_main(dataset_dir, o_file_dir, languages, num_top_entries):
     rdd_list = df_list.rdd.map(list)
     
     #Loop through to check all is correct
-    for f in rdd_list.take(20):      
-      print(f)
+#     for f in rdd_list.take(20):      
+#       print(f)
       
     #Save to file
     rdd_list.saveAsTextFile(o_file_dir)
